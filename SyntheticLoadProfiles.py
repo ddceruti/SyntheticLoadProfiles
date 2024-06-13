@@ -5,7 +5,6 @@ Created on Tue Mar 30 15:52:10 2021
 @author: asandhaa
 """
 
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,10 +29,10 @@ import os
 25.9	Manufacture of other products
 28	    Machinery"""
 
-industry_type = 28
+INDUSTRY_TYPE = 28
 
-"""Enter local path, where Excel files and Code is stored"""
-path = "P:\INES\INES\Projekte\GaIN\\5 - Projektarbeit\AP1_Kategorisierung der Nachfrage\\6 - Publication\AP 1\\03_Python_Code"
+"""Local path, where Python file is stored"""
+path = os.path.dirname(os.path.abspath(__file__))
 "--------------------------------------------"
 
 
@@ -60,10 +59,10 @@ all_info_wz.fillna(0, inplace=True)
 """GENERATION OF SYNTHETIC LOAD PROFILES"""
 "--------------------------------------------"
 """Step 2: Generating a basic load profile """
-data_industry_type = all_info_wz[all_info_wz.WZ_Code.eq(industry_type)] #filters the row with specific industry_wz
+data_industry_type = all_info_wz[all_info_wz.WZ_Code.eq(INDUSTRY_TYPE)] #filters the row with specific industry_wz
 energy_enduser_industry_type = data_industry_type[['Space heating', 'Hot water', 'Process heat', 'Space cooling',
        'Process cooling', 'Lighting', 'ICT', 'Mechanical drive']].values #extracts columns with specific industry_wz
-energy_enduser_industry_type = energy_enduser_industry_type.astype(np.float)
+energy_enduser_industry_type = energy_enduser_industry_type.astype(float)
 
 industry_name = str(data_industry_type.iloc[0]['Industry_name']) #filters the row with specific industry_wz
 """Step 3: Classifying mechanical drive processes"""
@@ -85,7 +84,7 @@ elif data_industry_type['Percentage of discontinuous mechanical drive'].item() =
     y=y.round(2)
     
 """Step 4: Applying a fluctuation rate"""
-if data_industry_type['Fluctuations'].item()  == 0:
+if data_industry_type['Fluctuations'].item() == 0:
     data_industry_type['Fluctuations'] = 19
     
 fluc_industry_type = float(data_industry_type['Fluctuations'])
@@ -175,19 +174,22 @@ def diagram(y, industry_type):
     plt.grid()
     plt.xticks(x_plot[::16], fontsize=18)
     plt.yticks(fontsize=18)
-    plt.legend(reversed(plt.legend().legendHandles), reversed(labels), loc='upper right',fontsize=16)
+    plt.legend(reversed(plt.legend().legendHandles), reversed(labels),
+               loc='upper right',fontsize=16)
     plt.xlim(left=0, xmax=max(x_plot))
     plt.ylim(bottom =0, ymax=160)
     plt.title('Synthetical load profile of WZ08 '+ str(industry_type) + ' '+ industry_name, fontsize=20)
     plt.savefig(path +'\\Results\\'+ str(industry_type) +" "+ str(industry_name[0:10])+" "+' Diagram.png')
-    return plt.show()
+    return fig
 
-diagram(y, industry_type)
 sec_row = pd.DataFrame(sec_row)
 data=pd.concat([sec_row, y])
-if not os.path.exists(path +'\\Results\\'):    
+if not os.path.exists(path +'\\Results\\'):
     os.mkdir(path +'\\Results')    
-data.to_excel(path +'\\Results\\' +str(industry_type)+" "+ str(industry_name[0:10])+" "+' Dataframe.xlsx')
+data.to_excel(path +'\\Results\\' +str(INDUSTRY_TYPE)+" "+ str(industry_name[0:10])+" "+' Dataframe.xlsx')
+
+fig = diagram(y, INDUSTRY_TYPE)
+fig.show()
 "--------------------------------------------"
 
    
